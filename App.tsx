@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { AppState, Language, RoadmapItem, QuizQuestion } from './types';
 import { INITIAL_ROADMAP, INITIAL_QUESTIONS, TRANSLATIONS } from './constants';
@@ -8,11 +7,15 @@ import QuizView from './components/QuizView';
 import AdminPanel from './components/AdminPanel';
 import Chatbot from './components/Chatbot';
 import { BookOpen, HelpCircle, Settings, Layout } from 'lucide-react';
-import.meta.env.VITE_GEMINI_API_KEY;
+
+// XÓA DÒNG "import.meta.env..." Ở ĐÂY ĐI NHÉ
+// Nó đứng trơ trọi một mình sẽ không có tác dụng gì cả.
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'roadmap' | 'quiz' | 'admin'>('roadmap');
   const [language, setLanguage] = useState<Language>('vi');
+  
+  // State quản lý dữ liệu
   const [roadmap, setRoadmap] = useState<RoadmapItem[]>(INITIAL_ROADMAP);
   const [questions, setQuestions] = useState<QuizQuestion[]>(INITIAL_QUESTIONS);
 
@@ -26,7 +29,7 @@ const App: React.FC = () => {
         if (q) setQuestions(q);
         if (l) setLanguage(l);
       } catch (e) {
-        console.error("Failed to load saved data");
+        console.error("Failed to load saved data", e);
       }
     }
   }, []);
@@ -36,7 +39,7 @@ const App: React.FC = () => {
   }, [roadmap, questions, language]);
 
   return (
-    <div className="min-h-screen flex flex-col font-sans relative">
+    <div className="min-h-screen flex flex-col font-sans relative bg-gray-50">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-gradient-to-r from-blue-700 to-indigo-800 text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
@@ -96,11 +99,11 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {/* AI Chatbot */}
+      {/* AI Chatbot - Nguyên nhân tiềm ẩn gây lỗi trắng màn hình nằm ở trong file này */}
       <Chatbot language={language} />
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 py-6">
+      <footer className="bg-white border-t border-gray-200 py-6 mt-auto">
         <div className="max-w-7xl mx-auto px-4 text-center text-gray-400 text-sm">
           <p>© {new Date().getFullYear()} ITBA Mastery Hub - Built for Future Business Analysts</p>
           <p className="mt-1">All technical terms follow BABOK® standards.</p>
