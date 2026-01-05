@@ -8,6 +8,7 @@ import QuizView from './components/QuizView';
 import AdminPanel from './components/AdminPanel';
 import Chatbot from './components/Chatbot';
 import { BookOpen, HelpCircle, Settings, Layout } from 'lucide-react';
+import.meta.env.VITE_GEMINI_API_KEY;
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'roadmap' | 'quiz' | 'admin'>('roadmap');
