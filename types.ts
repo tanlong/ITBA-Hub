@@ -28,3 +28,9 @@ export interface AppState {
   questions: QuizQuestion[];
   language: Language;
 }
+
+export interface ChatMessage {
+  role: 'user' | 'model';
+  text: string;
+  timestamp: number;
+}

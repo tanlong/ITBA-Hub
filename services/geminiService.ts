@@ -1,5 +1,6 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
+import { ChatMessage } from "../types";
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
@@ -63,4 +64,39 @@ export async function generateAIQuestions(topic: string, count: number = 10) {
     console.error("Failed to parse AI response:", error);
     return [];
   }
+}
+
+export async function chatWithAI(history: ChatMessage[], message: string, language: string) {
+  const systemInstruction = `You are a Senior IT Business Analyst (ITBA) Expert and Mentor. 
+  Your expertise includes BABOK v3, SDLC, Agile (Scrum/Kanban), UML, BPMN, and stakeholder management.
+  
+  Rules:
+  1. Always provide professional, practical, and highly detailed answers.
+  2. Use technical ITBA terms in English (e.g., User Story, Acceptance Criteria, Elicitation, Stakeholder, Non-functional Requirements) regardless of the language used for the rest of the response.
+  3. If the user asks in Vietnamese, reply in Vietnamese but keep technical jargon in English.
+  4. Structure your answers with headings, bullet points, and practical examples where possible.
+  5. Your tone should be supportive, authoritative, and educational.
+  6. Current language context: ${language === 'en' ? 'English' : 'Vietnamese'}.`;
+
+  const contents = history.map(msg => ({
+    role: msg.role,
+    parts: [{ text: msg.text }]
+  }));
+
+  contents.push({
+    role: 'user',
+    parts: [{ text: message }]
+  });
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-pro-preview',
+    contents,
+    config: {
+      systemInstruction,
+      temperature: 0.7,
+      topP: 0.95,
+    },
+  });
+
+  return response.text || "I'm sorry, I couldn't process that request.";
 }

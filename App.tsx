@@ -6,6 +6,7 @@ import LanguageToggle from './components/LanguageToggle';
 import RoadmapView from './components/RoadmapView';
 import QuizView from './components/QuizView';
 import AdminPanel from './components/AdminPanel';
+import Chatbot from './components/Chatbot';
 import { BookOpen, HelpCircle, Settings, Layout } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -34,7 +35,7 @@ const App: React.FC = () => {
   }, [roadmap, questions, language]);
 
   return (
-    <div className="min-h-screen flex flex-col font-sans">
+    <div className="min-h-screen flex flex-col font-sans relative">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-gradient-to-r from-blue-700 to-indigo-800 text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
@@ -93,6 +94,9 @@ const App: React.FC = () => {
           />
         )}
       </main>
+
+      {/* AI Chatbot */}
+      <Chatbot language={language} />
 
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 py-6">
