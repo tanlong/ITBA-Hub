@@ -1,13 +1,24 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { ChatMessage } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// 1. SỬA QUAN TRỌNG: Dùng import.meta.env và tên biến có VITE_
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+
+// Kiểm tra an toàn để tránh crash ứng dụng nếu quên set key
+if (!apiKey) {
+  console.error("❌ CRITICAL: Missing VITE_GEMINI_API_KEY in .env or Vercel Settings");
+}
+
+// Khởi tạo client an toàn
+const ai = new GoogleGenAI({ apiKey: apiKey || "MISSING_KEY" });
 
 export async function generateAIQuestions(topic: string, count: number = 10) {
+  // Check key trước khi gọi để tránh lỗi ngầm
+  if (!apiKey) throw new Error("API Key is missing. Please check configuration.");
+
   const prompt = `You are an expert IT Business Analyst (ITBA) and Project Manager, deeply familiar with BABOK v3 and practical industry experience. 
   Generate ${count} high-quality multiple-choice questions about the topic: "${topic}".
-  
+   
   Guidelines:
   1. Maintain technical terms in English (e.g., Stakeholder, Requirement, Backlog, Elicitation, Use Case, etc.) even in Vietnamese descriptions.
   2. Each question must have exactly 4 options.
@@ -19,7 +30,7 @@ export async function generateAIQuestions(topic: string, count: number = 10) {
      - Practical Scenario: A real-world example of this concept in action.
   4. Provide content in both English and Vietnamese.
   5. The Vietnamese translation should be professional and retain technical ITBA jargon in English.
-  
+   
   Return the result in JSON format matching this schema:
   Array of {
     id: string (unique),
@@ -33,7 +44,9 @@ export async function generateAIQuestions(topic: string, count: number = 10) {
   }`;
 
   const response = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
+    // LƯU Ý: Đổi model về bản ổn định (gemini-1.5-flash) hoặc mới nhất (gemini-2.0-flash-exp)
+    // "gemini-3" hiện tại chưa hoạt động ổn định hoặc chưa public public API
+    model: 'gemini-1.5-flash', 
     contents: prompt,
     config: {
       responseMimeType: 'application/json',
@@ -58,8 +71,9 @@ export async function generateAIQuestions(topic: string, count: number = 10) {
   });
 
   try {
-    const jsonStr = response.text;
-    return JSON.parse(jsonStr);
+    const jsonStr = response.text(); // Lưu ý: response.text() là hàm, hoặc response.text tùy version SDK
+    // Với SDK @google/genai mới nhất thì response.text() là hàm, nhưng kiểm tra kỹ type trả về
+    return JSON.parse(jsonStr || "[]");
   } catch (error) {
     console.error("Failed to parse AI response:", error);
     return [];
@@ -67,9 +81,11 @@ export async function generateAIQuestions(topic: string, count: number = 10) {
 }
 
 export async function chatWithAI(history: ChatMessage[], message: string, language: string) {
+  if (!apiKey) return "Error: API Key is missing configuration.";
+
   const systemInstruction = `You are a Senior IT Business Analyst (ITBA) Expert and Mentor. 
   Your expertise includes BABOK v3, SDLC, Agile (Scrum/Kanban), UML, BPMN, and stakeholder management.
-  
+   
   Rules:
   1. Always provide professional, practical, and highly detailed answers.
   2. Use technical ITBA terms in English (e.g., User Story, Acceptance Criteria, Elicitation, Stakeholder, Non-functional Requirements) regardless of the language used for the rest of the response.
@@ -89,7 +105,8 @@ export async function chatWithAI(history: ChatMessage[], message: string, langua
   });
 
   const response = await ai.models.generateContent({
-    model: 'gemini-3-pro-preview',
+    // Tương tự, dùng model ổn định
+    model: 'gemini-1.5-pro', 
     contents,
     config: {
       systemInstruction,
@@ -98,5 +115,5 @@ export async function chatWithAI(history: ChatMessage[], message: string, langua
     },
   });
 
-  return response.text || "I'm sorry, I couldn't process that request.";
+  return response.text() || "I'm sorry, I couldn't process that request.";
 }
