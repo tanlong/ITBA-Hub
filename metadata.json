@@ -1,0 +1,5 @@
+{
+  "name": "ITBA Hub",
+  "description": "An interactive learning platform for IT Business Analysis concepts, featuring roadmap management, AI-powered quiz generation based on BABOK, and bilingual support.",
+  "requestFramePermissions": []
+}
